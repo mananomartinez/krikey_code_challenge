@@ -41,15 +41,16 @@ BEGIN
 
     -- create and populate temp users table
     CREATE TEMP TABLE users (id uuid PRIMARY KEY);
-
-    insert into users (id)
-    select MD5(random()::TEXT || ':' || CURRENT_TIMESTAMP)::UUID
-    from generate_series(1, 100) s(i);
+    
+    FOR i IN 1..100 LOOP
+        INSERT INTO users (id)
+        SELECT MD5(random()::TEXT || ':' || CURRENT_TIMESTAMP)::UUID;
+    END LOOP;
 
     -- populate locations
     FOR i IN 1..5000 LOOP
-        insert into locations (id, geom)
-        select
+        INSERT INTO locations (id, geom)
+        SELECT
             MD5(random()::TEXT || ':' || CURRENT_TIMESTAMP)::UUID,
             ST_MakePoint(random()::float, random()::float);
     END LOOP;
@@ -58,17 +59,17 @@ BEGIN
    FOR i IN 1..5000 LOOP
       INSERT INTO transactions
          (id, user_id, spent, received)
-      SELECT transaction_id.md5 as id, id_for_user.id as user_id, spendable.json_spendable as spent, receivable.json_receivable as received  FROM
-        (SELECT MD5(random()::TEXT || ':' || CURRENT_TIMESTAMP)::UUID) as transaction_id,
+      SELECT transaction_id.md5 AS id, id_for_user.id AS user_id, spendable.json_spendable AS spent, receivable.json_receivable AS received  FROM
+        (SELECT MD5(random()::TEXT || ':' || CURRENT_TIMESTAMP)::UUID) AS transaction_id,
         (SELECT id FROM users ORDER BY random() LIMIT 1) AS id_for_user,
-        (SELECT json_object_agg(game_item.id, floor(random() * 10 + 1)::int) as json_spendable FROM (SELECT id FROM game_items WHERE item_type = 'spendable' ORDER BY random() LIMIT 1 ) as game_item) AS spendable,
-        (SELECT json_object_agg(game_item.id, floor(random() * 10 + 1)::int) as json_receivable FROM (SELECT id FROM game_items WHERE item_type = 'receivable' ORDER  BY random() LIMIT 1) as game_item) as receivable;
+        (SELECT json_object_agg(game_item.id, floor(random() * 10 + 1)::int) AS json_spendable FROM (SELECT id FROM game_items WHERE item_type = 'spendable' ORDER BY random() LIMIT 1 ) AS game_item) AS spendable,
+        (SELECT json_object_agg(game_item.id, floor(random() * 10 + 1)::int) AS json_receivable FROM (SELECT id FROM game_items WHERE item_type = 'receivable' ORDER  BY random() LIMIT 1) AS game_item) AS receivable;
    END LOOP;
 
     -- populate game_item_locations
    FOR i IN 1..5000 LOOP
     INSERT INTO game_item_locations (location_id,game_item_id,user_id)
-        SELECT location.id as location_id, game_item.id as game_item_id, id_for_user.id as user_id FROM
+        SELECT location.id AS location_id, game_item.id AS game_item_id, id_for_user.id AS user_id FROM
         (SELECT id FROM locations ORDER BY random() LIMIT 1) AS location,
         (SELECT id FROM game_items ORDER BY random() LIMIT 1) AS game_item,
         (SELECT id FROM users ORDER BY random() LIMIT 1) AS id_for_user;
@@ -84,12 +85,12 @@ $$ LANGUAGE plpgsql;
 3. Which user has received the `​downy woodpecker​` the most often​?
 
 ```SQL
-    select user_id, sum(downy.received::INTEGER) as downy_sum from
-     (select user_id, t.received ->>gi.id::text as received 
-        from game_items as gi,transactions as t 
-        where t.received ->>gi.id::text  is not null 
-        and gi.display_name ='downy woodpecker')
-     as downy group by user_id order by downy_sum desc limit 1;
+    SELECT user_id, SUM(downy.received::INTEGER) AS downy_sum FROM
+     (SELECT user_id, t.received ->>gi.id::text AS received 
+        FROM game_items AS gi,transactions AS t 
+        WHERE t.received ->>gi.id::text IS NOT NULL 
+        AND gi.display_name ='downy woodpecker')
+     AS downy GROUP BY user_id ORDER BY downy_sum DESC LIMIT 1;
 ```
 
 4. What are the aggregated counts per item for each user or itemCounts?
