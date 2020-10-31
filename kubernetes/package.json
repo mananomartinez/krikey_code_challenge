@@ -1,0 +1,13 @@
+{
+  "name": "Krikey",
+  "version": "1.0.0",
+  "description": "Node.js on Docker",
+  "author": "Jose Martinez <jose.martinez@mananofoto.com>",
+  "main": "server.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
