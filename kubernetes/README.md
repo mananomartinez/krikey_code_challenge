@@ -1,5 +1,7 @@
 ## Part 3: Kubernetes
+### Description
 You’ve been asked to containerize and deploy this API to GCP Kubernetes Engine. Please attach the Dockerfile and provide a written step-by-step guide on how you would build the docker image and deploy this to Kubernetes. This workload should be able to scale horizontally and serve 100k concurrent users. 
+
 ### Dependencies
 #### Google Cloud SDK
 

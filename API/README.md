@@ -1,10 +1,11 @@
 ## Part 2: API Scaling 
+### Description
 Player state has been exposed as an API endpoint using the SQL query you created in part one and Nodejs.
 There are millions of rows in game_items, transactions and locations. 
 
-How would you scale calculating player state for 50,000 concurrent requests? 
+  - How would you scale calculating player state for 50,000 concurrent requests? 
 
-Would you introduce any new technologies? 
+  - Would you introduce any new technologies? 
 
 ### My assumptions:
   - scenario refers to both the query times as well as processing the data queried.
